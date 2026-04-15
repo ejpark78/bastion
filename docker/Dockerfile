@@ -55,6 +55,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Docker CLI
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list \
+    # Antigravity
+    && curl -fsSL https://us-central1-apt.pkg.dev/doc/repo-signing-key.gpg | gpg --dearmor --yes -o /etc/apt/keyrings/antigravity-repo-key.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/antigravity-repo-key.gpg] https://us-central1-apt.pkg.dev/projects/antigravity-auto-updater-dev/ antigravity-debian main" > /etc/apt/sources.list.d/antigravity.list \
     # DBeaver
     && add-apt-repository ppa:serge-rider/dbeaver-ce -y \
     # 2.2 Install Applications
@@ -64,6 +67,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     docker-ce-cli \
     docker-compose-plugin \
     dbeaver-ce \
+    antigravity \
     # 2.3 Google Chrome (via .deb)
     && wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
     && apt-get install -y --no-install-recommends ./google-chrome-stable_current_amd64.deb \
