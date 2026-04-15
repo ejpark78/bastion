@@ -30,9 +30,11 @@ services:
     ports:
       - "6901:6901"
     environment:
-      - KASM_USER=${KASM_USER}
+      - KASM_USER=${KASM_USER-kasm-user}
       - VNC_PW=${VNC_PW}
-      - LC_ALL=${LC_ALL}
+      - LC_ALL=${LC_ALL-ko_KR.UTF-8}
+      - LANG=${LANG-ko_KR.UTF-8}
+      - LANGUAGE=${LANGUAGE-ko_KR.UTF-8}
       - XMODIFIERS=@im=fcitx
       - GTK_IM_MODULE=fcitx
       - QT_IM_MODULE=fcitx

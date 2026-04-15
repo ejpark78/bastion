@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     zsh \
     locales \
+    language-pack-ko \
     fonts-nanum \
     fcitx \
     fcitx-hangul \
@@ -90,13 +91,16 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
     && git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting \
     && sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' ~/.zshrc
 
-# 3.2 Fcitx Setup & Autostart
-RUN im-config -n fcitx \
-    && mkdir -p /home/kasm-user/.config/autostart /home/kasm-user/.config/fcitx \
-    && echo '[Desktop Entry]\nType=Application\nExec=fcitx -dr\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true\nName[ko_KR]=fcitx\nName=fcitx' > /home/kasm-user/.config/autostart/fcitx.desktop \
-    && echo "[Profile]\nIMName=fcitx-hangul" > /home/kasm-user/.config/fcitx/profile
+# 3.2 Fcitx Setup (User)
+RUN im-config -n fcitx
 
 USER root
+# 3.3 Skeleton Configuration (Root)
+RUN mkdir -p /etc/skel/.config/autostart /etc/skel/.config/fcitx \
+    && echo '[Desktop Entry]\nType=Application\nExec=fcitx -dr\nHidden=false\nNoDisplay=false\nX-GNOME-Autostart-enabled=true\nName[ko_KR]=fcitx\nName=fcitx' > /etc/skel/.config/autostart/fcitx.desktop \
+    && echo "[Profile]\nIMName=fcitx-hangul" > /etc/skel/.config/fcitx/profile \
+    && cp -r /etc/skel/. /home/kasm-user/ \
+    && chown -R kasm-user:kasm-user /home/kasm-user
 
 # 4. VS Code & Chrome Sandbox/Keyring Fix
 # In containerized environments, Electron apps often need --no-sandbox and --password-store=basic
@@ -104,8 +108,10 @@ RUN echo '#!/usr/bin/env bash\n/usr/bin/code --no-sandbox --password-store=basic
     && echo '#!/usr/bin/env bash\n/usr/bin/google-chrome-stable --no-sandbox --password-store=basic "$@"' > /usr/local/bin/google-chrome \
     && chmod +x /usr/local/bin/code /usr/local/bin/google-chrome
 
-# 4. Project Directory Structure
-RUN mkdir -p /home/kasm-user/project/docs/history /home/kasm-user/project/docs/plans \
+# 4. Project Directory Structure & Startup Scripts
+COPY custom_startup.sh /dockerstartup/custom_startup.sh
+RUN chmod +x /dockerstartup/custom_startup.sh \
+    && mkdir -p /home/kasm-user/project/docs/history /home/kasm-user/project/docs/plans \
     && chown -R kasm-user:kasm-user /home/kasm-user
 
 # 5. User Permissions (DooD support & Sudo)
