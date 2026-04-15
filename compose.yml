@@ -1,0 +1,55 @@
+
+services:
+
+  # kasm:
+  #   image: lscr.io/linuxserver/kasm:latest
+  #   profiles:
+  #     - all
+  #   privileged: true # 컨테이너 내부에서 도커 실행을 위해 필요
+  #   environment:
+  #     - KASM_PORT=443
+  #   volumes:
+  #     - ${PWD}/volumes/kasm/data:/opt
+  #     - ${PWD}/volumes/kasm/profiles:/profiles # 개인 설정 저장용
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   ports:
+  #     - "3000:3000" # 설치/마법사 포트
+  #     - "8443:443"  # 실제 접속 포트 (https://localhost:8443)
+  #   restart: unless-stopped
+
+  bastion:
+    image: bastion:${IMAGE_TAG}
+    profiles:
+      - all
+      - bastion
+    privileged: false
+    shm_size: "1gb"
+    build:
+      context: docker
+      dockerfile: Dockerfile    
+    ports:
+      - "6901:6901"
+    environment:
+      - KASM_USER=${KASM_USER}
+      - VNC_PW=${VNC_PW}
+      - LC_ALL=${LC_ALL}
+      - XMODIFIERS=@im=fcitx
+      - GTK_IM_MODULE=fcitx
+      - QT_IM_MODULE=fcitx
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - ${PWD}/volumes:/mnt
+      - ${PWD}/volumes/home:/home/kasm-user
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "curl", "-k", "https://localhost:6901/api/health"]
+      interval: 30s      
+      timeout: 10s       
+      retries: 3          
+      start_period: 15s  
+
+networks:
+  bastion-net:
+    driver: bridge
