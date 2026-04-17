@@ -12,6 +12,7 @@ Bastion 프로젝트는 Kasm Workspaces 기반의 커스텀 Ubuntu 개발 환경
 - **쉘**: Zsh + Oh My Zsh (autosuggestions & syntax-highlighting 플러그인 포함)
 - **입력기**: Fcitx-Hangul (한국어)
 - **자동화**: Makefile, Docker Compose
+- **AWS 에뮬레이션**: MiniStack (Local AWS Emulator), Komiser (AWS Dashboard)
 
 ## 📋 개발 가이드라인
 
@@ -32,6 +33,9 @@ Bastion 프로젝트는 Kasm Workspaces 기반의 커스텀 Ubuntu 개발 환경
 - `compose.yml`: 서비스 정의 및 환경 변수 매핑.
 - `docker/Dockerfile`: 시스템 패키지, 애플리케이션 설치 및 사용자 설정.
 - `docker/custom_startup.sh`: Fcitx 초기화를 위한 런타임 훅.
+- `docker/ministack/Dockerfile`: MiniStack 이미지 커스텀 빌드 (curl 설치).
+- `docker/komiser/Dockerfile`: Komiser 이미지 커스텀 빌드.
+- `docker/komiser/entrypoints.sh`: Komiser 실행 시 AWS 설정(.aws) 자동 초기화 스크립트.
 - `Makefile`: 빌드, 실행, 중지 작업을 위한 표준 진입점.
 
 ## 🧪 일반적인 작업 워크플로우

@@ -15,6 +15,9 @@
   - **데이터베이스**: DBeaver Community Edition
   - **쉘**: Zsh 및 Oh My Zsh (autosuggestions, syntax-highlighting 플러그인 포함)
   - **기타**: Docker CLI, Antigravity, Tilix, Alacritty
+- **로컬 AWS 개발 스택**:
+  - **MiniStack**: AWS API를 로컬에서 에뮬레이션하는 가벼운 서버.
+  - **Komiser**: AWS 리소스를 시각적으로 관리할 수 있는 웹 대시보드.
 - **Docker-out-of-Docker (DooD)**: Bastion 환경 내부에서 호스트의 Docker 컨테이너를 제어할 수 있는 기능 제공.
 - **데이터 영속성**: 홈 디렉토리 및 프로젝트 데이터 저장소 볼륨 매핑으로 데이터 보존.
 

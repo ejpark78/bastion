@@ -1,6 +1,57 @@
 
 services:
 
+  # MiniStack
+  ministack:
+    image: local/ministack:latest
+    build:
+      context: docker/ministack
+      dockerfile: Dockerfile
+    profiles:
+      - all
+      - stack
+    ports:
+      - "4566:4566"           # AWS API 엔드포인트
+      - "4510-4559:4510-4559" # 외부 연결이 필요한 특정 서비스용 포트 범위
+    environment:
+      - DEBUG=0                        
+      - SERVICES=s3,ec2,sqs,lambda,dynamodb # 실행할 서비스 제한 (생략 시 전체 실행)
+      - DATA_DIR=/data   
+    volumes:
+      - ${PWD}/volumes/ministack:/data
+      - /var/run/docker.sock:/var/run/docker.sock # Lambda/ECS 실행용
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_ministack/health"]
+      interval: 10s       
+      timeout: 5s       
+      retries: 5         
+      start_period: 10s 
+
+  # 웹 UI 대시보드
+  komiser:
+    image: local/komiser:latest
+    build:
+      context: docker/komiser
+      dockerfile: Dockerfile
+    profiles:
+      - all
+      - stack
+    ports:
+      - "3000:3000" # Komiser 기본 포트는 3000입니다.
+    environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ENDPOINT_URL=http://ministack:4566
+    depends_on:
+      ministack:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   # kasm:
   #   image: lscr.io/linuxserver/kasm:latest
   #   profiles:
@@ -25,8 +76,8 @@ services:
     privileged: false
     shm_size: "1gb"
     build:
-      context: docker
-      dockerfile: Dockerfile    
+      context: docker/bastion
+      dockerfile: Dockerfile
     ports:
       - "6901:6901"
     environment:
@@ -42,8 +93,8 @@ services:
     cap_add:
       - SYS_ADMIN
     volumes:
-      - ${PWD}/volumes:/mnt
-      - ${PWD}/volumes/home:/home/kasm-user
+      - ${PWD}/volumes/bastion:/mnt
+      - ${PWD}/volumes/bastion/home:/home/kasm-user
       - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
       test: ["CMD", "curl", "-k", "https://localhost:6901/api/health"]
